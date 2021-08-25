@@ -41,7 +41,8 @@ Visit http://hmmer.org/documentation.html for details.
 6) python DomainMapper/src/DomainMapper.py -f your_hmmscan_output.hmm.out -o your_hmmscan_output.mapped.out
 
 """
-argparser = argparse.ArgumentParser(description=descriptionText)
+print(descriptionText)
+argparser = argparse.ArgumentParser()
 
 argparser.add_argument('-f', type=str, default='NULL', help='Input path to file from \'hmmscan\'')
 argparser.add_argument('-o', type=str, default='NULL', help='Output path for mapped domains')
