@@ -21,7 +21,27 @@ def ErrorMsg(msg):
     ErrMsg = 'ERROR: ' + msg + '\n' + 'System Exiting...'
     print(ErrMsg)
 
-argparser = argparse.ArgumentParser(description='')
+descriptionText="""
+DomainMapper is an HMM parser designed to annotate proteins' domain structures from sequence alone using the ECOD database.  
+DomainMapper annotates non-contiguous, insertional, and circularly permuted domains as well.
+
+To use DomainMapper, the full output from an HMMR3 hmmscan is required as an input.  
+Here is how to generate this file:
+1) Get a file containing protein sequences in .fasta format (for instance, a proteome file from uniprot), save this in DomainMapper
+2) Obtain the ECOD HMM profile database at http://prodata.swmed.edu/ecod/distributions/ecodf.hmm.tar.gz
+3) Place this file in the same directory as DomainMapper, and unzip (tar -xzvf ecodf.hmm.tar.gz)
+
+At this point, you will need to run an hmmscan.  The user needs to have separately installed HMMR3.
+HMMR3 is pretty easy to install. On Mac, brew install hmmer. On Ubuntu, apt install hmmer. 
+Visit http://hmmer.org/documentation.html for details.
+
+4) hmmpress ecodf.hmm
+5) hmmscan -o DomainMapper/your_hmmscan_output.hmm.out ecodf.hmm DomainMapper/your_fasta_file.fasta
+
+6) python DomainMapper/src/DomainMapper.py -f your_hmmscan_output.hmm.out -o your_hmmscan_output.mapped.out
+
+"""
+argparser = argparse.ArgumentParser(description=descriptionText)
 
 argparser.add_argument('-f', type=str, default='NULL', help='Input path to file from \'hmmscan\'')
 argparser.add_argument('-o', type=str, default='NULL', help='Output path for mapped domains')
@@ -67,11 +87,11 @@ if args.gap < 0 or args.overlap < 0 or args.eval_cutoff < 0:
 fileShebang = """#==========================================================================
 #  DOMAIN MAPPER v0.0.1
 #  Johns Hopkins Univeristy - August 5th, 2021
-#  Stephen D. Fried, Ph.D. - Dept. of Chemistry
-#  sdfried@jhu.edu
-#  &
 #  Edgar Manriquez-Sandoval, B.S. - Dept. of Biophysics
 #  emanriq1@jhu.edu
+#  & 
+#  Stephen D. Fried, Ph.D. - Dept. of Chemistry
+#  sdfried@jhu.edu
 #==========================================================================
 #  Excecuted on:
 #               {}
