@@ -60,7 +60,7 @@ At this point, you will need to run an hmmscan.  The user needs to have separate
 ```
 # On MacOS
 brew install hmmer
-# n Ubuntu
+# On Ubuntu
 apt install hmmer
 ```
 
