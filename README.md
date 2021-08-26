@@ -15,6 +15,7 @@ Here is how to generate this file:
 At this point, you will need to run an hmmscan.  The user needs to have separately installed HMMER3.
 HMMER3 is pretty easy to install. On Mac, brew install hmmer. On Ubuntu, apt install hmmer. 
 Visit http://hmmer.org/documentation.html for details.
+
 4) hmmpress ecodf.hmm
 5) hmmscan -o DomainMapper/your_hmmscan_output.hmm.out ecodf.hmm DomainMapper/your_fasta_file.fasta
 
