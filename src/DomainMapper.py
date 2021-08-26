@@ -6,16 +6,6 @@ import LatestDomains
 from datetime import datetime
 from Bio.SearchIO import parse
 
-# TODO
-# Bioinformatics
-# Make README / Documentations
-# sh script / example script
-# Finalize fig 2 
-# Include refs in papers -- bioinfo
-# Include CP portion
-# Implementation of DM of how it is available and how it operates
-#   - Needs hmmer and assumes certain level of bioinfo knowl of user
-
 
 def ErrorMsg(msg):
     ErrMsg = 'ERROR: ' + msg + '\n' + 'System Exiting...'
