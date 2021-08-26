@@ -17,19 +17,30 @@ DomainMapper annotates non-contiguous, insertional, and circularly permuted doma
 
 To use DomainMapper, the full output from an HMMR3 hmmscan is required as an input.  
 Here is how to generate this file:
-1) Get a file containing protein sequences in .fasta format (for instance, a proteome file from uniprot), save this in DomainMapper
-2) Obtain the ECOD HMM profile database at http://prodata.swmed.edu/ecod/distributions/ecodf.hmm.tar.gz
-3) Place this file in the same directory as DomainMapper, and unzip (tar -xzvf ecodf.hmm.tar.gz)
 
-At this point, you will need to run an hmmscan.  The user needs to have separately installed HMMR3.
-HMMR3 is pretty easy to install. On Mac, brew install hmmer. On Ubuntu, apt install hmmer. 
-Visit http://hmmer.org/documentation.html for details.
+1) Get a file containing protein sequences in .fasta format (for instance, a proteome file from uniprot), save this in ```./DomainMapper```
 
-4) hmmpress ecodf.hmm
-5) hmmscan -o DomainMapper/your_hmmscan_output.hmm.out ecodf.hmm DomainMapper/your_fasta_file.fasta
+2) Obtain the [ECOD HMM profile database](http://prodata.swmed.edu/ecod/distributions/ecodf.hmm.tar.gz)
 
-6) python DomainMapper/src/DomainMapper.py -f your_hmmscan_output.hmm.out -o your_hmmscan_output.mapped.out
+3) Place this file in the DomainMapper directory, untar and unzip ```tar -xzvf ecodf.hmm.tar.gz```
 
+At this point, you will need to run an hmmscan.  The user needs to have separately installed HMMER3.
+
+##### Installing HMMR3
+```
+# On MacOS
+brew install hmmer
+# n Ubuntu
+apt install hmmer
+```
+
+Visit [http://hmmer.org/documentation.html](http://hmmer.org/documentation.html) for details.
+
+4) ```hmmpress ecodf.hmm```
+
+5) ```hmmscan -o your_hmmscan_output.hmm.out ecodf.hmm your_fasta_file.fasta```
+
+6) ```python src/DomainMapper.py -f your_hmmscan_output.hmm.out -o your_hmmscan_output.mapped.out```
 """
 print(descriptionText)
 argparser = argparse.ArgumentParser()
@@ -70,7 +81,6 @@ else:
         ErrorMsg("Input \'{}\' cannot be found. View help page with \'DomainMapper.py -h\'".format(args.ecod_domains))
         quit()
 
-# maybe worth refining this
 if args.gap < 0 or args.overlap < 0 or args.eval_cutoff < 0:
     ErrorMsg("Non-positive option detected. Please ensure all numerical arguments are positive numbers. View help page with \'DomainMapper.py -h\'")
     quit()
@@ -135,23 +145,20 @@ with open(args.o, 'w') as mapped_domains_file:
                     alignment_gap = re.search('\.{'+str(args.gap)+',}', str(alignment[1].seq))
                     
                     # Finding the range of the gap in the alignment
+                    # Matching the hmm hit range start/end index to the alignment sequence start/end index
                     if alignment_gap:
                         gap_start_aln_index = alignment_gap.start()
                         gap_end_aln_index = alignment_gap.end()
-                        # we should make this comment comprehensible
-                        # this next line looks confusing,
-                        # but all it is saying is that to go from column #  (what is column number ??) in alignment to actual residue # in query sequence, 
-                        # take column number PLUS resi where alignment starts on query MINUS the number of gaps in the query up to that point
                         gap_start_query_index = gap_start_aln_index + query_range[0] - len(re.findall('-',str(alignment[0].seq[:gap_start_aln_index])))
                         gap_end_query_index = gap_end_aln_index + query_range[0] - len(re.findall('-',str(alignment[0].seq[:gap_start_aln_index])))
                         gap_range = list(range(gap_start_query_index, gap_end_query_index))
                         query_range = [x for x in query_range if x not in gap_range]
                 
-                if evalue < args.eval_cutoff: #only bother keeping it if it is a decent match
+                if evalue < args.eval_cutoff: #Only bother keeping it if it is within E-value tolerance
                     potential_domain_mappings.append([F_group, evalue, query_range, hmm_range, []])
             
             # Multiple sequence alignment hits
-            # There is potential for these to be non-contiguous, circular permutants, or interveneing domains
+            # There is potential for these to be non-contiguous, circular permutants, or insertional domains
             if len(hit.hsps) > 1:
                 potential_noncontig_domains = list()
                 for hsp in hit.hsps:
@@ -162,12 +169,11 @@ with open(args.o, 'w') as mapped_domains_file:
 
                     if abs(len(query_range) - len(hmm_range)) > args.gap: #check if there's a big gap in the alignment
                         alignment = hsp.aln #grab the alignment from the hmm out file
-                        alignment_gap = re.search('\.{'+str(args.gap)+',}', str(alignment[1].seq)) #find a gap of 40 or more
+                        alignment_gap = re.search('\.{'+str(args.gap)+',}', str(alignment[1].seq))
                         
                         if alignment_gap:
                             gap_start_aln_index = alignment_gap.start()
                             gap_end_aln_index = alignment_gap.end()
-                            #this next line looks confusing, but all it is saying is that to go from column # in alignment to actual residue # in query sequence, take column number PLUS resi where alignment starts on query MINUS the number of gaps in the query up to that point
                             gap_start_query_index = gap_start_aln_index + query_range[0] - len(re.findall('-',str(alignment[0].seq[:gap_start_aln_index])))
                             gap_end_query_index = gap_end_aln_index + query_range[0] - len(re.findall('-',str(alignment[0].seq[:gap_start_aln_index])))
                             gap_range = list(range(gap_start_query_index, gap_end_query_index))
