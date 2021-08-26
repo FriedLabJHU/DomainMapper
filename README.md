@@ -82,4 +82,4 @@ Coming Soon!
 ## Funding
 
 * NSF Division of Molecular and Cellular Biology (2045844)
-* NIH Training Grant - Program in Molecular Biophysics (T32GM008403)
+* NIH Training Grant - Program in Molecular Biophysics (T32GM135131)
