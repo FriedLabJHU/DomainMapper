@@ -22,6 +22,7 @@ pip install Bio
 
 ## Documentation
 
+```
   -h, --help            show this help message and exit
   -f F                  Input path to file from 'hmmscan'
   -o O                  Output path for mapped domains
@@ -36,6 +37,7 @@ pip install Bio
   --eval_cutoff EVAL_CUTOFF
                         Optional upper bound tolerance of the E-value (default = 1e-5)
   -v                    Verbosity
+```
 
 ## HMMR3 & DomainMapper Tutorial
 
