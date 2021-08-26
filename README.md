@@ -3,6 +3,7 @@ DomainMapper is an HMM parser designed to annotate proteins' domain structures f
 DomainMapper annotates non-contiguous, insertional, and circularly permuted domains as well.
 
 To begin using DomainMapper, clone the repository to a destination on your local computer
+
 0) git clone https://github.com/FriedLabJHU/DomainMapper
 
 To use DomainMapper, the full output from an HMMR3 hmmscan is required as an input.  
