@@ -60,11 +60,8 @@ At this point, you will need to run an hmmscan.  The user needs to have separate
 ```
 # On MacOS
 brew install hmmer
-<<<<<<< HEAD
-# n Ubuntu
-=======
+
 # On Ubuntu
->>>>>>> 6e2d9461ffc288739a42269b2b704136f6b60089
 apt install hmmer
 ```
 
@@ -86,8 +83,5 @@ Coming Soon!
 ## Funding
 
 * NSF Division of Molecular and Cellular Biology (2045844)
-<<<<<<< HEAD
+
 * NIH Training Grant - Program in Molecular Biophysics (T32GM135131)
-=======
-* NIH Training Grant - Program in Molecular Biophysics (T32GM135131)
->>>>>>> 6e2d9461ffc288739a42269b2b704136f6b60089
