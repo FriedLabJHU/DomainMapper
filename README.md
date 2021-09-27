@@ -1,7 +1,7 @@
 # DomainMapper
 DomainMapper is an HMM parser designed to annotate proteins' domain structures from sequence alone using the ECOD database.  
-DomainMapper annotates non-contiguous, insertional, and circularly permuted domains as well.
-DomainMapper works on Linux / MacOS / Windows
+DomainMapper annotates non-contiguous, insertional, and circularly permuted domains as well.  
+DomainMapper works on Linux / MacOS / Windows  
 
 ## Dependencies
 
@@ -65,7 +65,7 @@ brew install hmmer
 # On Ubuntu
 apt install hmmer
 ```
-> * Currently there is no version of HMMR3 for Windows but HMMR3 on WSL could be a good alternative
+*Currently there is no version of HMMR3 for Windows but HMMR3 on WSL could be a good alternative*
 
 Visit [http://hmmer.org/documentation.html](http://hmmer.org/documentation.html) for details.
 
