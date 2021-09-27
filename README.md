@@ -19,7 +19,7 @@ pip install Bio
 
 ## Running DomainMapper
 
-``` python DomainMapper.py -o raw_hmmscan_output.hmm.out -f mapped_protein_domains.mapped.out```
+``` python DomainMapper.py -f raw_hmmscan_output.hmm.out -o mapped_protein_domains.mapped.out```
 
 ## Documentation
 
