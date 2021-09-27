@@ -8,7 +8,7 @@ ecod_domain_npy_fn = 'ecod.latest.domains.npy'
 # TODO - check_for_ecod_json
 # 1. Check a data directory that would come as part of the package
 def __check_for_ecod_domain_file():
-    if os.path.exists(ecod_domain_npy_fn) and os.times().elapsed - os.path.getctime(ecod_domain_npy_fn) > 2628000:
+    if os.path.exists(ecod_domain_npy_fn) and os.times().elapsed - os.path.getctime(ecod_domain_npy_fn) < 2628000:
         print("ecod.latest.domains.npy already exisits")
         return False
     return True
