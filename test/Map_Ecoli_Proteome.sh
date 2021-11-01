@@ -15,7 +15,7 @@ tar -xvzf ecodf.hmm.tar.gz -C .
 # Create HMMR3 binaraies
 hmmpress ecodf.hmm
 
-# Crearte hmmscan full output
+# Create hmmscan full output
 hmmscan -o Ecoli.hmm.out ecodf.hmm ${ecoli_proteome}
 
 # Mapping Protein Domains
