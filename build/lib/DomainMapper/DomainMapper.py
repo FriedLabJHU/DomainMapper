@@ -1,9 +1,8 @@
-#!/bin/env python
 import re
 import sys
 import argparse
 from datetime import datetime
-from Bio.SearchIO import parse, to_dict
+from Bio.SearchIO import parse
 from DomainMapper import LatestDomains, IODomains
 
 #TODO
@@ -33,7 +32,7 @@ def eliminate_overlapping_domains(idx, eval, overlap_map):
                 F_grp_ol, eval_ol = potential_domain_mappings[i][0:2]
                 tmp_idx.append(i)
                 tmp_eval.append(eval_ol)
-
+        
         # check if the reference domain is the best fit for it's sequence coverage, if not check if any of the overlaping domains are... 
         min_eval_idx = tmp_idx[tmp_eval.index(min(tmp_eval))]
         if  min_eval_idx == idx:
@@ -42,7 +41,7 @@ def eliminate_overlapping_domains(idx, eval, overlap_map):
                     mark_for_deletion[j] = 1
             return
         else:
-            eliminate_overlapping_domains(min_eval_idx, min(tmp_eval), overlap_logic_array[min_eval_idx])
+            eliminate_overlapping_domains(min_eval_idx, eval_ol, overlap_logic_array[min_eval_idx])
 
 descriptionText = """"""
 argparser = argparse.ArgumentParser(description=descriptionText)
@@ -99,15 +98,10 @@ Tot_domain_cnt = 0
 output_lines = list()
 
 hmmscan = parse(args.f,'hmmer3-text')
-# Very inefficient step but worth it
-num_proteins = len(to_dict(hmmscan).keys())
-IODomains.printProgressBar(0, num_proteins, prefix = 'Mapping:', suffix = 'Complete', length = 50)
-
-# counting the protiens in the hmmscan generator deletes it for some reason, parsing twice is not nice but not that inefficient
-hmmscan = parse(args.f,'hmmer3-text')
 for p_idx, protein in enumerate(hmmscan):
     accession = protein.id
     potential_domain_mappings = list()
+
     for hit in protein.hits:
         # Single sequence alignment hit
         if len(hit.hsps) == 1:
@@ -266,12 +260,10 @@ for p_idx, protein in enumerate(hmmscan):
                     # More than 15 residue overlaps on either side of a domain and it wil be marked overlapping
                     if RangeIntersection(query_rng_A,query_rng_B[:mid_rng_idx_B]) > args.overlap or RangeIntersection(query_rng_A,query_rng_B[mid_rng_idx_B:]) > args.overlap:
                         overlap_logic_array[a][b+a+1] = 1
-                        overlap_logic_array[b+a+1][a] = 1
-
+                        
                 # More than twice the overlap tolerance and it will be marked overlapping
                 else:
                     overlap_logic_array[a][b+a+1] = 1
-                    overlap_logic_array[b+a+1][a] = 1
 
     # Recursively check all overlap maps and mark those with poor overlap and high E-vlaues for deletion
     mark_for_deletion = [0 for i in range(len(potential_domain_mappings))]
@@ -341,8 +333,6 @@ for p_idx, protein in enumerate(hmmscan):
             output_lines.append(('{}\t'*9).format(accession, str(eval), residue_range_as_string, ''.join(str(s) for s in domain_properties), "N/A", "N/A", "N/A", F_group, "N/A")+'\n')
         
         Tot_domain_cnt += 1 # yes I know taking the len of mapped_domains is fast but this shows future readers of this code where we are taking final count
-
-    IODomains.printProgressBar(p_idx + 1, num_proteins, prefix = 'Mapping:', suffix = 'Complete', length = 50)
 
 with open(args.o, 'w') as mapped_domains_file:
     mapped_domains_file.write(

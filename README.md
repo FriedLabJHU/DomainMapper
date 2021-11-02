@@ -17,9 +17,18 @@ pip install wget
 pip install Bio
 ```
 
+## Installing DomainMapper
+```
+# move into cloned directory
+cd /DomainMapper
+
+# installing with pip
+pip install .
+```
+
 ## Running DomainMapper
 
-``` python DomainMapper.py -f raw_hmmscan_output.hmm.out -o mapped_protein_domains.mapped.out```
+``` dommap -f raw_hmmscan_output.hmm.out -o mapped_protein_domains.mapped.out```
 
 ## Documentation
 
