@@ -129,7 +129,7 @@ output_lines = list()
 
 hmmscan = parse(args.f,'hmmer3-text')
 # Very inefficient step but worth it
-num_proteins = len(to_dict(hmmscan).keys())
+num_proteins = sum(1 for _ in hmmscan)
 IODomains.printProgressBar(0, num_proteins, prefix = 'Mapping:', suffix = 'Complete', length = 50)
 
 # counting the protiens in the hmmscan generator deletes it for some reason, parsing twice is not nice but not that inefficient
@@ -204,6 +204,9 @@ for p_idx, protein in enumerate(hmmscan):
                                 for x in range(map_rng_A[-1], map_rng_B[0]):
                                     if x not in map_rng_A:
                                         map_rng_A.append(x)
+
+                            if map_rng_A[-1] > map_rng_B[0]:
+                                map_rng_A = map_rng_A[:map_rng_A.index(map_rng_B[0])-1]
 
                             potential_noncontig_domains[a] = ['null',1,[],[]]
                             potential_noncontig_domains[b+a+1][1] = min(eval_A, eval_B) # maybe find a way to combine these values? Same up top
