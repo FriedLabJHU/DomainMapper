@@ -1,4 +1,3 @@
-#!/bin/env python
 import re
 import sys
 import argparse
@@ -129,7 +128,7 @@ output_lines = list()
 
 hmmscan = parse(args.f,'hmmer3-text')
 # Very inefficient step but worth it
-num_proteins = sum(1 for _ in hmmscan)
+num_proteins = len(to_dict(hmmscan).keys())
 IODomains.printProgressBar(0, num_proteins, prefix = 'Mapping:', suffix = 'Complete', length = 50)
 
 # counting the protiens in the hmmscan generator deletes it for some reason, parsing twice is not nice but not that inefficient
@@ -209,15 +208,6 @@ for p_idx, protein in enumerate(hmmscan):
                             potential_noncontig_domains[b+a+1][1] = min(eval_A, eval_B) # maybe find a way to combine these values? Same up top
                             potential_noncontig_domains[b+a+1][2] = map_rng_A + map_rng_B
                             potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
-
-                        if map_rng_A[-1] > map_rng_B[0]:
-                            map_rng_A = list(range(map_rng_A[0],map_rng_B[-1]))
-
-                            potential_noncontig_domains[a] = ['null',1,[],[]]
-                            potential_noncontig_domains[b+a+1][1] = min(eval_A, eval_B) # maybe find a way to combine these values? Same up top
-                            potential_noncontig_domains[b+a+1][2] = map_rng_A
-                            potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
-
 
             # Remove any domains with low E-values
             for pot_nc_dom in potential_noncontig_domains:
