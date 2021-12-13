@@ -27,6 +27,16 @@ if [int(dgt) for dgt in Bio.__version__.split('.')[:2]] < [1, 6]:
     sys.stderr.write('DomainMapper requires BioPython v1.6 or later, you can find it at: https://biopython.org/ \n')
     sys.exit()
 
+try:
+    import numpy
+except ImportError:
+    sys.stderr.write('numpy is not installed, you can find it at: https://numpy.org/ \n')
+    sys.exit()
+
+if [int(dgt) for dgt in numpy.__version__.split('.')[:2]] < [1, 17]:
+    sys.stderr.write('DomainMapper requires numpy v1.17 or later, you can find it at: https://numpy.org/ \n')
+    sys.exit()
+
 if sys.version_info[:2] < (3, 4):
     print("DomainMapper requires Python 3.4 or later. Python {}.{} detected".format(*sys.version_info[:2]))
     print("Please upgrade your version of Python.")

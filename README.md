@@ -5,13 +5,13 @@ DomainMapper works on Linux / MacOS / Windows
 
 ## Dependencies
 
-In order to use DomainMapper you will need ```wget``` and  ```BioPython```
+In order to use DomainMapper you will need ```numpy``` and  ```BioPython```
 These can be installed using ```pip```
 
 ##### Installing Dependencies
 ```
-# installing wget
-pip install wget
+# installing numpy
+pip install numpy
 
 # installing BioPython
 pip install Bio
