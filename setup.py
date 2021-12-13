@@ -53,6 +53,7 @@ setup(
     package_dir = {'':'src'},
     requires=["Requests (>= 2.0)",
         "BioPython (>= 1.6)",
+        "Numpy (>=1.17)",
     ],
     package_data={'': ['ecod.latest.domains.npy']},
     scripts=['src/DomainMapper/dommap'],
