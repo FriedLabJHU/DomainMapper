@@ -31,7 +31,7 @@ def FileHeader(time, in_file, out_file, gap_tol, overlap_tol, eval_tol, Tot_cnt,
 #               CP = Circular Permutant Domain
 #               IS = InSertional Domain
 #==========================================================================
-# Accession\tE-value\tReside Range\tPropery\tArchitecture\tX-group\tT-group\tF-group\tF-id
+# Accession\tE-Value\tResidue Range\tProperty\tArchitecture\tX-group\tT-group\tF-group\tF-id
 """.format(time, in_file, out_file, gap_tol, overlap_tol, eval_tol, Tot_cnt, NC_cnt, float(NC_cnt)/float(Tot_cnt), CP_cnt, float(CP_cnt)/float(Tot_cnt), IS_cnt, float(IS_cnt)/float(Tot_cnt),)
     return fileHeader
 
