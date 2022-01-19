@@ -5,8 +5,10 @@ from datetime import datetime
 from Bio.SearchIO import parse
 from DomainMapper import LatestDomains, IODomains
 
-#TODO
-# Add CP identification in single HSPs
+# returns the combination of two E-Values (treated as psuedo P-Values) with Tippett's method
+def Tippet_E_Val_Stat(eval_A, eval_B):
+    min_eval = min(eval_A, eval_B)
+    return 1 - ((1 - min_eval)*(1 - min_eval))
 
 # returns the length of the set A∩B, can also return an array that includes all intersecting residue indices
 def RangeIntersection(range_A, range_B, array = False):
@@ -17,6 +19,7 @@ def RangeIntersection(range_A, range_B, array = False):
     else:
         return length, intersection
 
+# returns the query/map range of an hsp for only ranges with an aligned HMM -- this will create non-contiguous domains if the HMM matches seperate parts on a query range
 def hsp_range_finder(hsp, map_range_idx, hmm_range_idx):
     query_start, query_end = map_range_idx
     hmm_start, hmm_end = hmm_range_idx
@@ -27,8 +30,8 @@ def hsp_range_finder(hsp, map_range_idx, hmm_range_idx):
 
     gap_ranges = []
 
-    if (query_end - query_start) - (hmm_end - hmm_start) > args.gap:
-        alignment_gap = re.finditer('\.{'+str(args.gap)+',}', str(hmm_aln.seq))
+    if (query_end - query_start) - (hmm_end - hmm_start) > args.intra_gap:
+        alignment_gap = re.finditer('\.{'+str(args.intra_gap)+',}', str(hmm_aln.seq))
         
         # Finding the range of the gap in the hmm alignment
         # Match the hmm gap range start/end index to the query sequence index
@@ -46,12 +49,12 @@ def hsp_range_finder(hsp, map_range_idx, hmm_range_idx):
 
     return domain_map_range
 
-# mark_for_deletion is a global variable
+# mark_for_deletion and overlap_logic_array are a global variables
 def eliminate_overlapping_domains(idx, eval, overlap_map, domain_map):
         if mark_for_deletion[idx]:
             return
 
-        # save all idx and eval for residues with which the reference domain overlaps with
+        # save all idx and eval for domains with which the reference domain overlaps with
         tmp_idx = [idx]
         tmp_eval = [eval]
         for i,overlap in enumerate(overlap_map):
@@ -60,7 +63,7 @@ def eliminate_overlapping_domains(idx, eval, overlap_map, domain_map):
                 tmp_idx.append(i)
                 tmp_eval.append(eval_ol)
 
-        # check if the reference domain is the best fit for it's sequence coverage, if not check if any of the overlaping domains are... 
+        # check if the reference domain is the best fit for it's sequence coverage, if not check if any of the overlaping domains are recursively 
         min_eval_idx = tmp_idx[tmp_eval.index(min(tmp_eval))]
         if  min_eval_idx == idx:
             for j in tmp_idx:
@@ -76,7 +79,8 @@ argparser = argparse.ArgumentParser(description=descriptionText)
 argparser.add_argument('-f', type=str, default='NULL', help='Input path to file from \'hmmscan\'')
 argparser.add_argument('-o', type=str, default='NULL', help='Output path for mapped domains')
 argparser.add_argument('--ecod_domains', default='NULL', type=str, help='Path to ECOD \'Latest Domains\' text file  (default = file is automatically downloaded [165 MB Free Space Required (deleted after parsing)] [2 MB File Saved])')
-argparser.add_argument('--gap', '--domain_gap_tolerance', type=int, default=35, help='Optional gap size between HMM domain sequence and fasta aligment  (default = 35)')
+argparser.add_argument('--intra_gap', '--intra_domain_gap_tolerance', type=int, default=35, help='Optional gap size between HMM sequence and query sequence for non-contiguous alignment within a domain (default = 35)')
+argparser.add_argument('--inter_gap', '--inter_domain_gap_tolerance', type=int, default=20, help='Optional gap size between two domains sequences for non-contiguous merging (default = 20)')
 argparser.add_argument('--overlap', '--domain_overlap_tolerance', type=int, default=15, help='Optional overlap between HMM domain sequence and fasta aligment in consecutive or split domains  (default = 15)')
 argparser.add_argument('--eval_cutoff', type=float, default=1e-5, help='Optional upper bound tolerance of the E-value  (default = 1e-5)')
 argparser.add_argument('--update', help='Update ECOD \'Latest Domains\'', default=False, action="store_true")
@@ -100,7 +104,7 @@ if args.ecod_domains == 'NULL':
 else:
     ecod_domain_dict = LatestDomains.load(args.ecod_domains)
 
-if args.gap < 0:
+if args.intra_gap < 0:
     IODomains.ErrorMsg("Non-positive option detected for gap size tolerance. Please ensure all numerical arguments are positive numbers. View help page with \'DomainMapper.py -h\'")
 
 if args.overlap < 0:
@@ -122,14 +126,14 @@ IS_domain_cnt = 0
 # Total domain counter
 Tot_domain_cnt = 0
 
+# Final formatted output
 output_lines = list()
 
-hmmscan = parse(args.f,'hmmer3-text')
 # Very inefficient step but worth it
+hmmscan = parse(args.f,'hmmer3-text')
 num_proteins = sum(1 for _ in hmmscan)
 IODomains.printProgressBar(0, num_proteins, prefix = 'Mapping:', suffix = 'Complete', length = 50)
 
-# counting the protiens in the hmmscan generator deletes it for some reason, parsing twice is not nice but not that inefficient
 hmmscan = parse(args.f,'hmmer3-text')
 for p_idx, protein in enumerate(hmmscan):
     accession = protein.id
@@ -179,7 +183,6 @@ for p_idx, protein in enumerate(hmmscan):
                         F_grp_B, eval_B, map_rng_B, hmm_rng_B = domain_B[0:4]
                         
                         # If the ranges of the hmm are indexed first for the downsteam query sequence and then the upstream query sequence, consider it a circular permutant
-                        ### Here test
                         if RangeIntersection(map_rng_A,map_rng_B) <= args.overlap and RangeIntersection(list(range(hmm_rng_A[0],hmm_rng_A[1])),list(range(hmm_rng_B[0],hmm_rng_B[1]))) <= args.overlap and ((map_rng_A[0] < map_rng_B[0] and hmm_rng_A[0] > hmm_rng_B[0]) or (map_rng_A[0] > map_rng_B[0] and hmm_rng_A[0] < hmm_rng_B[0])) and F_grp_A != 'null' and F_grp_B != 'null' and F_grp_A == F_grp_B:
                             # Mark as Circ. Permut.
                             potential_noncontig_domains[b+a+1][4].append('CP')
@@ -192,7 +195,7 @@ for p_idx, protein in enumerate(hmmscan):
                                         map_rng_A.append(x)
 
                             potential_noncontig_domains[a] = ['null',1,[],[]]
-                            potential_noncontig_domains[b+a+1][1] = min(eval_A, eval_B)
+                            potential_noncontig_domains[b+a+1][1] = Tippet_E_Val_Stat(eval_A, eval_B)
                             potential_noncontig_domains[b+a+1][2] = map_rng_A + map_rng_B
                             potential_noncontig_domains[b+a+1][3] = (hmm_rng_A[0], hmm_rng_B[1])
 
@@ -200,23 +203,23 @@ for p_idx, protein in enumerate(hmmscan):
                             map_rng_A = list(range(map_rng_A[0],map_rng_B[-1]))
 
                             potential_noncontig_domains[a] = ['null',1,[],[]]
-                            potential_noncontig_domains[b+a+1][1] = min(eval_A, eval_B) # maybe find a way to combine these values? Same up top
+                            potential_noncontig_domains[b+a+1][1] = Tippet_E_Val_Stat(eval_A, eval_B) # maybe find a way to combine these values? Same up top
                             potential_noncontig_domains[b+a+1][2] = map_rng_A
                             potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
 
                         if RangeIntersection(map_rng_A,map_rng_B) <= args.overlap and RangeIntersection(list(range(hmm_rng_A[0],hmm_rng_A[1])),list(range(hmm_rng_B[0],hmm_rng_B[1]))) <= args.overlap and F_grp_A != 'null' and F_grp_B != 'null' and F_grp_A == F_grp_B:
                             # If two domain mappings are considerably close, consider them one domain
                             # otherwise, it is a non-contig. domain which will be marked as such later in this program
-                            if map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) < args.gap:
+                            if map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) < args.inter_gap:
                                 for x in range(map_rng_A[-1], map_rng_B[0]):
                                     if x not in map_rng_A:
                                         map_rng_A.append(x)
                                         potential_noncontig_domains[a] = ['null',1,[],[]]
-                                        potential_noncontig_domains[b+a+1][1] = min(eval_A, eval_B) # maybe find a way to combine these values? Same up top
+                                        potential_noncontig_domains[b+a+1][1] = Tippet_E_Val_Stat(eval_A, eval_B) # maybe find a way to combine these values? Same up top
                                         potential_noncontig_domains[b+a+1][2] = map_rng_A + map_rng_B
                                         potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
                             
-                            elif map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) >= args.gap:
+                            elif map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) >= args.inter_gap:
                                 # prevent double saving
                                 if domain_A not in overlapping_potential_noncontig_domains:
                                     potential_noncontig_domains[a] = ['null',1,[],[]]
@@ -241,7 +244,7 @@ for p_idx, protein in enumerate(hmmscan):
                                 overlap_logic_array[a][b+a+1] = 1
                                 overlap_logic_array[b+a+1][a] = 1
 
-                            if len(map_rng_A) < args.gap:
+                            if len(map_rng_A) < args.intra_gap:
                                 if float(RangeIntersection(map_rng_A,map_rng_B))/float(len(map_rng_A)) > 0.7:
                                     overlap_logic_array[a][b+a+1] = 1
                                     overlap_logic_array[b+a+1][a] = 1
@@ -263,7 +266,7 @@ for p_idx, protein in enumerate(hmmscan):
                             F_grp_B, eval_B, map_rng_B, hmm_rng_B, query_prop_B = domain_B
 
                             nc_F_grp = F_grp_A
-                            nc_eval = min(eval_A, eval_B)
+                            nc_eval = Tippet_E_Val_Stat(eval_A, eval_B)
                             nc_map_rng = map_rng_A + map_rng_B
                             nc_hmm_rng = hmm_rng_A + hmm_rng_B
                             nc_query_prop = query_prop_A + query_prop_B
@@ -304,7 +307,7 @@ for p_idx, protein in enumerate(hmmscan):
                     overlap_logic_array[b+a+1][a] = 1
             
             # Smaller domains (< gap size) must be treated differently since their overlap could be 100% but smaller than our tolerances
-            if len(map_rng_A) < args.gap:
+            if len(map_rng_A) < args.intra_gap:
                 if float(RangeIntersection(map_rng_A,map_rng_B))/float(len(map_rng_A)) > 0.7:
                     overlap_logic_array[a][b+a+1] = 1
                     overlap_logic_array[b+a+1][a] = 1
@@ -399,7 +402,7 @@ for p_idx, protein in enumerate(hmmscan):
 
 with open(args.o, 'w') as mapped_domains_file:
     mapped_domains_file.write(
-        IODomains.FileHeader(datetime.now(), args.f, args.o, args.gap, args.overlap, args.eval_cutoff, num_proteins, Tot_domain_cnt, NC_domain_cnt, CP_domain_cnt, IS_domain_cnt))
+        IODomains.FileHeader(datetime.now(), args.f, args.o, args.intra_gap, args.inter_gap, args.overlap, args.eval_cutoff, num_proteins, Tot_domain_cnt, NC_domain_cnt, CP_domain_cnt, IS_domain_cnt))
 
     for line in output_lines:
         mapped_domains_file.write(line)

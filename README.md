@@ -37,16 +37,16 @@ pip install .
   -f F                  Input path to file from 'hmmscan'
   -o O                  Output path for mapped domains
   --ecod_domains ECOD_DOMAINS
-                        Path to ECOD 'Latest Domains' text file (default = file is automatically downloaded [165 MB
-                        Free Space Required (deleted after parsing)] [2 MB File Saved])
-  --gap GAP, --domain_gap_tolerance GAP
-                        Optional gap size between HMM domain sequence and fasta aligment (default = 40)
+                        Path to ECOD 'Latest Domains' text file (default = file is automatically downloaded [165 MB Free Space Required (deleted after parsing)] [2 MB File Saved])
+  --intra_gap INTRA_GAP, --intra_domain_gap_tolerance INTRA_GAP
+                        Optional gap size between HMM sequence and query sequence for non-contiguous alignment within a domain (default = 35)
+  --inter_gap INTER_GAP, --inter_domain_gap_tolerance INTER_GAP
+                        Optional gap size between two domains sequences for non-contiguous merging (default = 20)
   --overlap OVERLAP, --domain_overlap_tolerance OVERLAP
-                        Optional overlap between HMM domain sequence and fasta aligment in consecutive or split
-                        domains (default = 15)
+                        Optional overlap between HMM domain sequence and fasta aligment in consecutive or split domains (default = 15)
   --eval_cutoff EVAL_CUTOFF
                         Optional upper bound tolerance of the E-value (default = 1e-5)
-  -v                    Verbosity
+  --update              Update ECOD 'Latest Domains'
 ```
 
 ## HMMR3 & DomainMapper Tutorial

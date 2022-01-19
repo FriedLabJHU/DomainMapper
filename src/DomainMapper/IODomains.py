@@ -1,10 +1,10 @@
 import sys
 
-def FileHeader(time, in_file, out_file, gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, CP_cnt, IS_cnt):
+def FileHeader(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, CP_cnt, IS_cnt):
     fileHeader = \
 """#===========================================================================================
-#  DOMAIN MAPPER v1.4.0
-#  Johns Hopkins Univeristy - November 1st, 2021
+#  DOMAIN MAPPER v2.0.0
+#  Johns Hopkins Univeristy - January 19th, 2022
 #  Edgar Manriquez-Sandoval, B.S. - Dept. of Biophysics
 #  emanriq1@jhu.edu
 #  & 
@@ -18,7 +18,8 @@ def FileHeader(time, in_file, out_file, gap_tol, overlap_tol, eval_tol, Tot_prot
 #  Output:
 #               {}
 #  Options:
-#               gap = {:2d}
+#               Intra domain gap = {:2d}
+#               Inter domain gap = {:2d}
 #               overlap = {:2d}
 #               E-value cutoff = {:1.2e}
 #  Domain Counts:
@@ -32,7 +33,7 @@ def FileHeader(time, in_file, out_file, gap_tol, overlap_tol, eval_tol, Tot_prot
 #               IS = InSertional Domain
 #===========================================================================================
 # Accession\tE-Value\tResidue Range\tProperty\tArchitecture\tX-group\tT-group\tF-group\tF-id
-""".format(time, in_file, out_file, gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, float(NC_cnt)/float(Tot_cnt), CP_cnt, float(CP_cnt)/float(Tot_cnt), IS_cnt, float(IS_cnt)/float(Tot_cnt),)
+""".format(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, float(NC_cnt)/float(Tot_cnt), CP_cnt, float(CP_cnt)/float(Tot_cnt), IS_cnt, float(IS_cnt)/float(Tot_cnt),)
     return fileHeader
 
 # This was stolen from: Greenstick @ https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console?page=1&tab=votes#tab-top
