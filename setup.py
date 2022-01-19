@@ -44,7 +44,7 @@ if sys.version_info[:2] < (3, 4):
 
 setup(
     name = "DomainMapper",
-    version = "1.3.0",
+    version = "1.4.0",
     author = "Edgar Manriquez-Sandoval",
     author_email = "emanriq1@jhu.edu",
     url="https://github.com/FriedLabJHU/DomainMapper",
