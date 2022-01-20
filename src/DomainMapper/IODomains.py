@@ -3,7 +3,7 @@ import sys
 def FileHeader(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, CP_cnt, IS_cnt):
     fileHeader = \
 """#===========================================================================================
-#  DOMAIN MAPPER v2.0.0
+#  DOMAIN MAPPER v2.0.1
 #  Johns Hopkins Univeristy - January 19th, 2022
 #  Edgar Manriquez-Sandoval, B.S. - Dept. of Biophysics
 #  emanriq1@jhu.edu
