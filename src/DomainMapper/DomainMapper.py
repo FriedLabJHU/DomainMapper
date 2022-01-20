@@ -350,7 +350,7 @@ for p_idx, protein in enumerate(hmmscan):
                 num_res_B_in_aln_gap_A = RangeIntersection(alignment_gap_A,map_rng_B)
 
                 # Then, if all of B's residues (with 15 (default) allowed as exception) lie within a gap of A mark as IS of that domain
-                if num_res_B_in_aln_gap_A > len(map_rng_B) - args.overlap: 
+                if num_res_B_in_aln_gap_A > len(map_rng_B) - args.overlap and len(map_rng_B) - args.overlap > 0: 
                     if "IS" not in mapped_domains[b][4]: # only count insertional domains once even if they are found to be insertional to multiple host domains
                         mapped_domains[b][4].append('IS')
                         IS_domain_cnt += 1
