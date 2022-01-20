@@ -358,8 +358,6 @@ for p_idx, protein in enumerate(hmmscan):
                     if "IS" not in mapped_domains[b][4]: # only count insertional domains once even if they are found to be insertional to multiple host domains
                         mapped_domains[b][4].append('IS')
                         IS_domain_cnt += 1
-                    else:
-                        mapped_domains[b][4].append('IS')
 
     #Now just output this to a file
     domain_info = dict()
