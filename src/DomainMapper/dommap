@@ -2,14 +2,17 @@
 import re
 import sys
 import argparse
+from math import log
 from datetime import datetime
 from Bio.SearchIO import parse
 from DomainMapper import LatestDomains, IODomains
 
 # returns the combination of two E-Values (treated as psuedo P-Values) with Tippett's method
-def Tippet_E_Val_Stat(eval_A, eval_B):
-    min_eval = min(eval_A, eval_B)
-    return 1 - ((1 - min_eval)*(1 - min_eval))
+def log_mean_E_val(eval_A, eval_B):
+    if eval_A == eval_B:
+        return eval_A
+    else:
+        return (eval_A - eval_B)/(log(eval_A) - log(eval_B))
 
 # returns the length of the set A∩B, can also return an array that includes all intersecting residue indices
 def RangeIntersection(range_A, range_B, array = False):
@@ -189,22 +192,22 @@ for p_idx, protein in enumerate(hmmscan):
                             potential_noncontig_domains[b+a+1][4].append('CP')
                             
                             # If there is a small space between the circ. permut. domains close it off and consider it a single contiguous domain
-                            # otherwise, if the space is larger than the overlap tolerance it can also be marked as non-contig. later on in this program
-                            if map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) < args.overlap:
+                            # otherwise, if the space is larger than the inter domain gap tolerance it can also be marked as non-contig. later on in this program
+                            if map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) < args.inter_gap:
                                 for x in range(map_rng_A[-1], map_rng_B[0]):
                                     if x not in map_rng_A:
                                         map_rng_A.append(x)
-
-                            potential_noncontig_domains[a] = ['null',1,[],[]]
-                            potential_noncontig_domains[b+a+1][1] = Tippet_E_Val_Stat(eval_A, eval_B)
+                            
+                            potential_noncontig_domains[a] = ['null',1,[],[],[]]
+                            potential_noncontig_domains[b+a+1][1] = log_mean_E_val(eval_A, eval_B)
                             potential_noncontig_domains[b+a+1][2] = map_rng_A + map_rng_B
-                            potential_noncontig_domains[b+a+1][3] = (hmm_rng_A[0], hmm_rng_B[1])
+                            potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
 
                         if map_rng_A[-1] > map_rng_B[0] and F_grp_A != 'null' and F_grp_B != 'null' and F_grp_A == F_grp_B:
                             map_rng_A = list(range(map_rng_A[0],map_rng_B[-1]))
 
-                            potential_noncontig_domains[a] = ['null',1,[],[]]
-                            potential_noncontig_domains[b+a+1][1] = Tippet_E_Val_Stat(eval_A, eval_B) # maybe find a way to combine these values? Same up top
+                            potential_noncontig_domains[a] = ['null',1,[],[],[]]
+                            potential_noncontig_domains[b+a+1][1] = log_mean_E_val(eval_A, eval_B)
                             potential_noncontig_domains[b+a+1][2] = map_rng_A
                             potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
 
@@ -215,23 +218,23 @@ for p_idx, protein in enumerate(hmmscan):
                                 for x in range(map_rng_A[-1], map_rng_B[0]):
                                     if x not in map_rng_A:
                                         map_rng_A.append(x)
-                                        potential_noncontig_domains[a] = ['null',1,[],[]]
-                                        potential_noncontig_domains[b+a+1][1] = Tippet_E_Val_Stat(eval_A, eval_B) # maybe find a way to combine these values? Same up top
+                                        potential_noncontig_domains[a] = ['null',1,[],[],[]]
+                                        potential_noncontig_domains[b+a+1][1] = log_mean_E_val(eval_A, eval_B)
                                         potential_noncontig_domains[b+a+1][2] = map_rng_A + map_rng_B
                                         potential_noncontig_domains[b+a+1][3] = hmm_rng_A + hmm_rng_B
                             
                             elif map_rng_A[-1] < map_rng_B[0] and (map_rng_B[0] - map_rng_A[-1]) >= args.inter_gap:
                                 # prevent double saving
                                 if domain_A not in overlapping_potential_noncontig_domains:
-                                    potential_noncontig_domains[a] = ['null',1,[],[]]
+                                    potential_noncontig_domains[a] = ['null',1,[],[],[]]
                                     overlapping_potential_noncontig_domains.append(domain_A)
                                 elif domain_A in overlapping_potential_noncontig_domains:
-                                    potential_noncontig_domains[a] = ['null',1,[],[]] # if B was added but more domains follow, deletes latest domain in list to overlap pot_nc_domains
+                                    potential_noncontig_domains[a] = ['null',1,[],[],[]] # if B was added but more domains follow, deletes latest domain in list to overlap pot_nc_domains
 
                                 if domain_B not in overlapping_potential_noncontig_domains:
                                     overlapping_potential_noncontig_domains.append(domain_B)
                                 elif b+a+1 == len(potential_noncontig_domains):
-                                    potential_noncontig_domains[b+a+1] = ['null',1,[],[]] # deletes last possible overlapping nc_domain, able to be readded later
+                                    potential_noncontig_domains[b+a+1] = ['null',1,[],[],[]] # deletes last possible overlapping nc_domain, able to be readded later
 
                 # preparing to remove overlapping domains that are non-contiguous
                 if len(overlapping_potential_noncontig_domains) > 1:
@@ -267,7 +270,7 @@ for p_idx, protein in enumerate(hmmscan):
                             F_grp_B, eval_B, map_rng_B, hmm_rng_B, query_prop_B = domain_B
 
                             nc_F_grp = F_grp_A
-                            nc_eval = Tippet_E_Val_Stat(eval_A, eval_B)
+                            nc_eval = log_mean_E_val(eval_A, eval_B)
                             nc_map_rng = map_rng_A + map_rng_B
                             nc_hmm_rng = hmm_rng_A + hmm_rng_B
                             nc_query_prop = query_prop_A + query_prop_B
@@ -322,7 +325,7 @@ for p_idx, protein in enumerate(hmmscan):
     # Deleting
     for a,delete in enumerate(mark_for_deletion):
         if delete:
-            potential_domain_mappings[a] = ['null',1,[],[]]
+            potential_domain_mappings[a] = ['null',1,[],[],[]]
 
     # Final domains
     for pot_dom_map in potential_domain_mappings:
@@ -363,6 +366,7 @@ for p_idx, protein in enumerate(hmmscan):
     for a,domain in enumerate(mapped_domains):
         #reformat the residue range into a nice tidy little string
         F_group, eval, map_range, hmm_range, domain_properties = domain[:]
+        map_range = sorted(map_range)
 
         start = map_range[0] 
         residue_range_as_string = str(start+1)  #the +1 is an artifact caused by BioPython re-indexing 1 to 0.
@@ -385,9 +389,9 @@ for p_idx, protein in enumerate(hmmscan):
             x_group = ecod_domain_dict[F_group][2]
             t_group = ecod_domain_dict[F_group][3]
 
-            domain_info[a] = [accession, '{:.2e}'.format(eval), residue_range_as_string, ' '.join(str(s) for s in domain_properties), arch, x_group, t_group, F_group, f_id]
+            domain_info[a] = [accession, '{:.1e}'.format(eval), residue_range_as_string, ' '.join(str(s) for s in domain_properties), arch, x_group, t_group, F_group, f_id]
         else:
-            domain_info[a] = [accession, '{:.2e}'.format(eval), residue_range_as_string, ' '.join(str(s) for s in domain_properties), "N/A", "N/A", "N/A", F_group, "N/A"]
+            domain_info[a] = [accession, '{:.1e}'.format(eval), residue_range_as_string, ' '.join(str(s) for s in domain_properties), "N/A", "N/A", "N/A", F_group, "N/A"]
         
         Tot_domain_cnt += 1 # yes I know taking the len of mapped_domains is fast but this shows future readers of this code where we are taking final count
 
