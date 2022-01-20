@@ -12,7 +12,11 @@ def log_mean_E_val(eval_A, eval_B):
     if eval_A == eval_B:
         return eval_A
     else:
-        return (eval_A - eval_B)/(log(eval_A) - log(eval_B))
+        try:
+            val = (eval_A - eval_B)/(log(eval_A) - log(eval_B))
+            return (eval_A - eval_B)/(log(eval_A) - log(eval_B))
+        except:
+            return min(eval_A, eval_B)
 
 # returns the length of the set A∩B, can also return an array that includes all intersecting residue indices
 def RangeIntersection(range_A, range_B, array = False):
