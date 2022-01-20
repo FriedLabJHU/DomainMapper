@@ -385,9 +385,9 @@ for p_idx, protein in enumerate(hmmscan):
             x_group = ecod_domain_dict[F_group][2]
             t_group = ecod_domain_dict[F_group][3]
 
-            domain_info[a] = [accession, str(eval), residue_range_as_string, ' '.join(str(s) for s in domain_properties), arch, x_group, t_group, F_group, f_id]
+            domain_info[a] = [accession, '{:.2e}'.format(str(eval)), residue_range_as_string, ' '.join(str(s) for s in domain_properties), arch, x_group, t_group, F_group, f_id]
         else:
-            domain_info[a] = [accession, str(eval), residue_range_as_string, ' '.join(str(s) for s in domain_properties), "N/A", "N/A", "N/A", F_group, "N/A"]
+            domain_info[a] = [accession, '{:.2e}'.format(str(eval)), residue_range_as_string, ' '.join(str(s) for s in domain_properties), "N/A", "N/A", "N/A", F_group, "N/A"]
         
         Tot_domain_cnt += 1 # yes I know taking the len of mapped_domains is fast but this shows future readers of this code where we are taking final count
 
