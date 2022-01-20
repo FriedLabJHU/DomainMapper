@@ -241,7 +241,7 @@ for p_idx, protein in enumerate(hmmscan):
 
                 # preparing to remove overlapping domains that are non-contiguous
                 if len(overlapping_potential_noncontig_domains) > 1:
-                    print(overlapping_potential_noncontig_domains)
+                    
                     overlap_logic_array = [[0 for i in range(len(overlapping_potential_noncontig_domains))] for j in range(len(overlapping_potential_noncontig_domains))]
                     for a,domain_A in enumerate(overlapping_potential_noncontig_domains[:-1]):
                         for b,domain_B in enumerate(overlapping_potential_noncontig_domains[a+1:]):
@@ -257,25 +257,21 @@ for p_idx, protein in enumerate(hmmscan):
                                     overlap_logic_array[a][b+a+1] = 1
                                     overlap_logic_array[b+a+1][a] = 1
                     
-                    print(overlap_logic_array)
                     # recursively remove high E-Value overlapping domains
                     mark_for_deletion = [0 for i in range(len(overlapping_potential_noncontig_domains))]
                     for a,dom_overlap_map in enumerate(overlap_logic_array):
                         F_grp_A, eval_A = overlapping_potential_noncontig_domains[a][0:2]
                         eliminate_overlapping_domains(a,eval_A,dom_overlap_map,overlapping_potential_noncontig_domains)
 
-                    print(mark_for_deletion)
                     nonoverlapping_potential_noncontig_domains = []
                     for a,delete in enumerate(mark_for_deletion):
                         if not delete:
                             nonoverlapping_potential_noncontig_domains.append(overlapping_potential_noncontig_domains[a])
                     
-                    #print(nonoverlapping_potential_noncontig_domains)
                     if len(nonoverlapping_potential_noncontig_domains) > 1:
                         for a,domain_A in enumerate(nonoverlapping_potential_noncontig_domains[:-1]):
                             for b,domain_B in enumerate(nonoverlapping_potential_noncontig_domains[a+1:]):
 
-                                print(domain_A,domain_B)
                                 F_grp_A, eval_A, map_rng_A, hmm_rng_A, query_prop_A = domain_A
                                 F_grp_B, eval_B, map_rng_B, hmm_rng_B, query_prop_B = domain_B
 
