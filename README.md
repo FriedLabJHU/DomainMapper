@@ -82,10 +82,10 @@ Visit [http://hmmer.org/documentation.html](http://hmmer.org/documentation.html)
 
 5) ```hmmscan -o your_hmmscan_output.hmm.out ecodf.hmm your_fasta_file.fasta```
 
-6) ```python src/DomainMapper.py -f your_hmmscan_output.hmm.out -o your_hmmscan_output.mapped.out```
+6) ```dommap -f your_hmmscan_output.hmm.out -o your_hmmscan_output.mapped.out```
 
-To read the various additional options available, read the help docstring
-```python DomainMapper.py -h```
+To read the various additional options available, read the help docstring  
+```dommap -h```
 
 ## Citation
 
