@@ -89,7 +89,7 @@ To read the various additional options available, read the help docstring
 
 ## Citation
 
-Coming Soon!
+Manriquez-Sandoval, E., and Fried, S.D. (2022). Accurate Protein Domain Structure Annotation with DomainMapper. BioRxiv 2022.03.19.484986.  
 
 ## Funding
 
