@@ -98,19 +98,21 @@ args = argparser.parse_args()
 if len(sys.argv) < 1:
     IODomains.ErrorMsg("No Arguments Passed. View help page with \'DomainMapper.py -h\'.")
 
+if args.ecod_domains == 'NULL':
+    if args.update and len(sys.argv) < 2:
+        LatestDomains.update()
+        IODomains.ErrorMsg("Latest domain definitions updated.")
+    if args.update and len(sys.argv) > 2:
+        LatestDomains.update()
+    ecod_domain_dict = LatestDomains.load()
+else:
+    ecod_domain_dict = LatestDomains.load(args.ecod_domains)
+
 if args.f == 'NULL':
     IODomains.ErrorMsg("No Input hmmscan file provided. View help page with \'DomainMapper.py -h\'")
 
 if args.o == 'NULL':
     IODomains.ErrorMsg("No Output path provided. View help page with \'DomainMapper.py -h\'")
-
-
-if args.ecod_domains == 'NULL':
-    if args.update:
-        LatestDomains.update()
-    ecod_domain_dict = LatestDomains.load()
-else:
-    ecod_domain_dict = LatestDomains.load(args.ecod_domains)
 
 if args.intra_gap < 0:
     IODomains.ErrorMsg("Non-positive option detected for gap size tolerance. Please ensure all numerical arguments are positive numbers. View help page with \'DomainMapper.py -h\'")
