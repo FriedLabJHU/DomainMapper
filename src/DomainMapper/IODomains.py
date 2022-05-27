@@ -69,3 +69,9 @@ def WarningMsg(msg):
     WrnMsg = 'WARNING: ' + msg + '\n'
     sys.stderr.write(WrnMsg)
     return sys.stderr.flush()
+
+def NoticeMsg(msg):
+    ErrMsg = 'NOTICE: ' + msg + '\n'
+    sys.stderr.write(ErrMsg)
+    sys.stderr.flush()
+    return sys.exit()

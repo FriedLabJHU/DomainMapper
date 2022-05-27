@@ -95,13 +95,13 @@ argparser.add_argument('--update', help='Update ECOD \'Latest Domains\'', defaul
 
 args = argparser.parse_args()
 
-if len(sys.argv) < 1:
+if len(sys.argv) < 2:
     IODomains.ErrorMsg("No Arguments Passed. View help page with \'DomainMapper.py -h\'.")
 
 if args.ecod_domains == 'NULL':
-    if args.update and len(sys.argv) < 2:
+    if args.update and len(sys.argv) < 3:
         LatestDomains.update()
-        IODomains.ErrorMsg("Latest domain definitions updated.")
+        IODomains.NoticeMsg("Latest domain definitions updated.")
     if args.update and len(sys.argv) > 2:
         LatestDomains.update()
     ecod_domain_dict = LatestDomains.load()
