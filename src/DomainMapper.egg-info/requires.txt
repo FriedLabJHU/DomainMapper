@@ -1,0 +1,4 @@
+requests
+bio
+numpy
+scipy

@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: DomainMapper
+Version: 3.0.0
+Summary: A parser for hmmscan full outputs built around ECOD domain definitions
+Home-page: https://github.com/FriedLabJHU/DomainMapper
+Author: Edgar Manriquez-Sandoval - Fried Lab - JHU
+Author-email: emanriq1@jhu.edu
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.5
+License-File: LICENSE
+
+UNKNOWN
+

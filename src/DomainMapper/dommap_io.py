@@ -1,11 +1,10 @@
 import sys
 
-def FileHeader(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, CP_cnt, IS_cnt):
-    fileHeader = \
-"""#===========================================================================================
-#  DOMAIN MAPPER v2.0.3
-#  Johns Hopkins Univeristy - July 7th, 2022
-#  Edgar Manriquez-Sandoval, B.S. - Dept. of Biophysics
+def file_header(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, CP_cnt, IS_cnt):
+    fileHeader = """#===========================================================================================
+#  DOMAIN MAPPER v3.0.0
+#  Johns Hopkins Univeristy - July 18th, 2022
+#  Edgar Manriquez-Sandoval, M.S. - Dept. of Biophysics
 #  emanriq1@jhu.edu
 #  & 
 #  Stephen D. Fried, Ph.D. - Dept. of Chemistry
@@ -38,7 +37,7 @@ def FileHeader(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_to
 
 # This was stolen from: Greenstick @ https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console?page=1&tab=votes#tab-top
 # Headless and fast
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+def progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -59,19 +58,27 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total: 
         print()
 
-def ErrorMsg(msg):
+def error_msg(msg):
     ErrMsg = 'ERROR: ' + msg + '\n' + 'System Exiting...\n'
     sys.stderr.write(ErrMsg)
     sys.stderr.flush()
     return sys.exit()
 
-def WarningMsg(msg):
+def warning_msg(msg):
     WrnMsg = 'WARNING: ' + msg + '\n'
     sys.stderr.write(WrnMsg)
-    return sys.stderr.flush()
-
-def NoticeMsg(msg):
-    ErrMsg = 'NOTICE: ' + msg + '\n'
-    sys.stderr.write(ErrMsg)
     sys.stderr.flush()
-    return sys.exit()
+    return None
+
+def notice_msg(msg):
+    NtcMsg = 'NOTICE: ' + msg + '\n'
+    sys.stderr.write(NtcMsg)
+    sys.stderr.flush()
+    return None
+
+descriptionText = \
+"""
+DomainMapper is a HMMER3 output parser designed to annotate protein domains using the ECOD database.\n
+\n
+`https://github.com/FriedLabJHU/DomainMapper`
+"""

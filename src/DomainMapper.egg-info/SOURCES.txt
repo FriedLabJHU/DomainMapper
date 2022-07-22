@@ -1,0 +1,14 @@
+LICENSE
+README.md
+setup.py
+src/DomainMapper/dommap
+src/DomainMapper/dommap.py
+src/DomainMapper/dommap_data_structures.py
+src/DomainMapper/dommap_io.py
+src/DomainMapper/dommap_tools.py
+src/DomainMapper/ecod.latest.domains.npy
+src/DomainMapper.egg-info/PKG-INFO
+src/DomainMapper.egg-info/SOURCES.txt
+src/DomainMapper.egg-info/dependency_links.txt
+src/DomainMapper.egg-info/requires.txt
+src/DomainMapper.egg-info/top_level.txt

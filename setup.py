@@ -1,7 +1,8 @@
 import os
 import sys
 import shutil
-from distutils.core import setup
+from xml import dom
+from setuptools import setup, find_packages
 
 if os.path.exists('build') == True:
 	print("build exists")
@@ -15,6 +16,16 @@ except ImportError:
 
 if [int(dgt) for dgt in requests.__version__.split('.')[:2]] < [2, 0]:
     sys.stderr.write('DomainMapper requires requests v2.0 or later, you can find it at: https://docs.python-requests.org/en/latest/ \n')
+    sys.exit()
+
+try:
+    import scipy
+except ImportError:
+    sys.stderr.write('SciPy is not installed, you can find it at: https://scipy.org/ \n')
+    sys.exit()
+
+if [int(dgt) for dgt in scipy.__version__.split('.')[:2]] < [1, 6]:
+    sys.stderr.write('DomainMapper requires scipy v1.6 or later, you can find it at: https://scipy.org/ \n')
     sys.exit()
 
 try:
@@ -44,17 +55,21 @@ if sys.version_info[:2] < (3, 4):
 
 setup(
     name = "DomainMapper",
-    version = "2.0.3",
-    author = "Edgar Manriquez-Sandoval",
+    version = "3.0.0",
+    author = "Edgar Manriquez-Sandoval - Fried Lab - JHU",
     author_email = "emanriq1@jhu.edu",
     url="https://github.com/FriedLabJHU/DomainMapper",
     description = ("A parser for hmmscan full outputs built around ECOD domain definitions"),
     packages=["DomainMapper"],
     package_dir = {'':'src'},
-    requires=["Requests (>= 2.0)",
-        "BioPython (>= 1.6)",
-        "Numpy (>=1.17)",
+    install_requires=[
+        "requests",
+        "bio",
+        "numpy",
+        "scipy"
     ],
     package_data={'': ['ecod.latest.domains.npy']},
+    include_package_data=True,
     scripts=['src/DomainMapper/dommap'],
+    python_requires=">=3.5"
 )
