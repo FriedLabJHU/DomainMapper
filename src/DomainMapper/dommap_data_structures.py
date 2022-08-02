@@ -40,6 +40,16 @@ class Domain:
 
         self.f_group = hsp.hit_id
 
+        self.t_group = "N/A"
+
+        self.x_group = "N/A"
+
+        self.arch = "N/A"
+
+        self.f_id = "N/A"
+
+        self.res_str = ""
+
         self.intra_gap = intra_gap
 
         self.inter_gap = inter_gap
@@ -229,6 +239,7 @@ class DomainMap(list):
         """
 
         self._overlap_matrix = zeros(shape=(len(self), len(self)))
+        self._deletion_matrix = zeros(shape=len(self))
 
     def __map_range_overlapper(self):
         """
@@ -256,7 +267,7 @@ class DomainMap(list):
                 if dom_A.map_intersection(dom_B) > dom_A.overlap:
                     
                     # Check for situtations were a domain might overlap by greater than or equal to `overlap` number of residues at domain flanks
-                    if dom_A.map_intersection(dom_B) <= 2*dom_A.overlap and len(dom_A.map_range) >= 2*dom_A.overlap:
+                    if dom_A.map_intersection(dom_B) <= 2*dom_A.overlap and (len(dom_A.map_range) >= 2*dom_A.overlap or len(dom_B.map_range) >= 2*dom_B.overlap):
                         mid_rng_idx_B = len(dom_A.map_range)//2
                         
                         if dom_A.map_intersection(dom_B, end = mid_rng_idx_B) >= dom_A.overlap or dom_A.map_intersection(dom_B, start = mid_rng_idx_B) >= dom_A.overlap:
@@ -305,7 +316,7 @@ class DomainMap(list):
             """
 
             # If this domain has already been eliminated, skip
-            if not self[i]:
+            if self._deletion_matrix[i]:
                 return
 
             # Temporarily save all index and E-value for domains that overlap
@@ -321,7 +332,7 @@ class DomainMap(list):
             if  min_eval_idx == i:
                 for j in tmp_idx:
                     if j != i:
-                        self[j] = None
+                        self._deletion_matrix[j] = 1
                 return
             # else recursively check the overlapping domains of the lowest E-value domain
             else:
@@ -331,7 +342,16 @@ class DomainMap(list):
         try:
             for i, overlap_row in enumerate(self._overlap_matrix):
                 _recursive_elimination(overlap_row, i)
+            
+            for i,del_ele in enumerate(self._deletion_matrix):
+                if del_ele:
+                    self[i] = None
+
         except AttributeError:
             self.overlap_matrix()
             for i, overlap_row in enumerate(self._overlap_matrix):
                 _recursive_elimination(overlap_row, i)
+
+            for i,del_ele in enumerate(self._deletion_matrix):
+                if del_ele:
+                    self[i] = None
