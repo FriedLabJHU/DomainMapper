@@ -129,7 +129,7 @@ for p_idx, protein in enumerate(hmmscan):
 
                         # If the ranges of the hmm are indexed first for the downsteam query domain and then the upstream query domain, consider it a circular permutant
                         if domain_A.map_intersection(domain_B) <= args.overlap \
-                            and domain_A.hmm_intersection(domain_B)/domain_A.hmm_len < 0.7 and domain_A.hmm_intersection(domain_B)/domain_B.hmm_len < 0.7 \
+                            and not domain_A.hmm_intersection(domain_B) \
                                 and ((domain_A.map_range[0] < domain_B.map_range[0] and domain_A.hmm_range[0] > domain_B.hmm_range[0]) or (domain_A.map_range[0] > domain_B.map_range[0] and domain_A.hmm_range[0] < domain_B.hmm_range[0])) \
                                     and domain_A and domain_B and domain_A.f_group == domain_B.f_group:
                             
@@ -142,13 +142,13 @@ for p_idx, protein in enumerate(hmmscan):
                             # Remove domain_A
                             potential_noncontig_domains[a] = None
 
-                        # If the quary ranges overlap less than or equal to the `overlap` tolerance, 
+                        # If the query ranges do not overlap, 
                         if domain_A.map_intersection(domain_B) <= 0 \
-                            and domain_A.hmm_intersection(domain_B)/domain_A.hmm_len < 0.7 and domain_A.hmm_intersection(domain_B)/domain_B.hmm_len < 0.7 \
-                                    and domain_A and domain_B and domain_A.f_group == domain_B.f_group:
+                            and domain_A and domain_B and domain_A.f_group == domain_B.f_group:
 
                             # If two query domains are considerably close, merge them
-                            if domain_A.map_range[-1] < domain_B.map_range[0] and (domain_B.map_range[0] - domain_A.map_range[-1]) < args.inter_gap:
+                            if domain_A.map_range[-1] < domain_B.map_range[0] and (domain_B.map_range[0] - domain_A.map_range[-1]) < args.inter_gap\
+                                and not domain_A.hmm_intersection(domain_B):
                                 # Merge the domain data
                                 domain_B.merge(domain_A)
 
@@ -156,7 +156,8 @@ for p_idx, protein in enumerate(hmmscan):
                                 potential_noncontig_domains[a] = None
                             
                             # If two query domains cannot merge, they are non-contigous and could potentially be host an insertional domain with overlap
-                            elif domain_A.map_range[-1] < domain_B.map_range[0] and (domain_B.map_range[0] - domain_A.map_range[-1]) >= args.inter_gap:
+                            elif domain_A.map_range[-1] < domain_B.map_range[0] and (domain_B.map_range[0] - domain_A.map_range[-1]) >= args.inter_gap\
+                                and not domain_A.hmm_intersection(domain_B):
                                 # Prevent double saving of domains in `overlapping_potential_noncontig_domains`
                                 if domain_A not in overlapping_potential_noncontig_domains:
 
@@ -173,23 +174,11 @@ for p_idx, protein in enumerate(hmmscan):
                                 if domain_B not in overlapping_potential_noncontig_domains:
 
                                     overlapping_potential_noncontig_domains.append(domain_B)
+
                                 # Delete the last added domain in list `potential_noncontig_domains`
                                 elif b+a+1 == len(potential_noncontig_domains):
                                     
                                     potential_noncontig_domains[b+a+1] = None 
-                        
-                        # If the domains overlap more than 1 but less than or equal to the `overlap` tolerance, merge them
-                        if domain_A.map_intersection(domain_B) >= 1 and domain_A.map_intersection(domain_B) <= args.overlap \
-                            and domain_A.hmm_intersection(domain_B)/domain_A.hmm_len < 0.7 and domain_A.hmm_intersection(domain_B)/domain_B.hmm_len < 0.7 \
-                                and domain_A and domain_B and domain_A.f_group == domain_B.f_group:
-
-                            # Fix the overlap
-                            map_range_fill = list(range(domain_A.map_range[0], domain_B.map_range[-1]))
-
-                            domain_B.update_map_range(map_range_fill)
-
-                            # Remove domain_A
-                            potential_noncontig_domains[a] = None
 
                 # preparing to remove overlapping domains that are non-contiguous
                 if len(overlapping_potential_noncontig_domains) > 1:
@@ -229,11 +218,6 @@ for p_idx, protein in enumerate(hmmscan):
     # Final domains
     for pot_dom_map in potential_domain_mappings:
         if pot_dom_map:
-
-            # Count the total number of NC and CP domains after filtering
-            if "CP" in pot_dom_map.topology:
-                CP_domain_cnt += 1
-
             mapped_domains.append(pot_dom_map)
     
     # Label the intervening domains (domains that lie within non-contiguous domains)
@@ -250,7 +234,6 @@ for p_idx, protein in enumerate(hmmscan):
                 if num_res_B_in_aln_gap_A > domain_B.map_len - args.overlap and domain_B.map_len - args.overlap > 0: 
                     if "IS" not in mapped_domains[b].topology: # only count insertional domains once even if they are found to be insertional to multiple host domains
                         mapped_domains[b].update_topology(f"IS")
-                        IS_domain_cnt += 1
 
     #Now just output this to a file
     domain_info = dict()
@@ -265,31 +248,32 @@ for p_idx, protein in enumerate(hmmscan):
                 residue_range_as_string += ("-{},{}").format(str(mr+1), str(domain.map_range[i+1]+1)) #Again, +1"s is because of BioPython indexing
                 # need to catch these all before
                 if "NC" not in domain.topology:
+                    """Fix counter"""
                     domain.update_topology(f"NC")
-                    NC_domain_cnt += 1
         residue_range_as_string += ("-{}").format(str(domain.map_range[-1]+1))
         
-        
+        domain.res_str = residue_range_as_string
         #try to find the domain in the domain dict else output the F group from the hmmscan
         if domain.f_group in ecod_domain_dict.keys():
-            f_id = ecod_domain_dict[domain.f_group][0]
-            arch = ecod_domain_dict[domain.f_group][1]
-            x_group = ecod_domain_dict[domain.f_group][2]
-            t_group = ecod_domain_dict[domain.f_group][3]
+            domain.f_id = ecod_domain_dict[domain.f_group][0]
+            domain.arch = ecod_domain_dict[domain.f_group][1]
+            domain.x_group = ecod_domain_dict[domain.f_group][2]
+            domain.t_group = ecod_domain_dict[domain.f_group][3]
 
-            domain_info[domain.f_group] = [accession, "{:.1e}".format(domain.e_val), residue_range_as_string, " ".join(str(s) for s in domain.topology), arch, x_group, t_group, domain.f_group, f_id]
-        else:
-            domain_info[domain.f_group] = [accession, "{:.1e}".format(domain.e_val), residue_range_as_string, " ".join(str(s) for s in domain.topology), "N/A", "N/A", "N/A", domain.f_group, "N/A"]
-        
         Tot_domain_cnt += 1 # yes I know taking the len of mapped_domains is fast but this shows future readers of this code where we are taking final count
 
     # print domains out in order of the first index that appears for a given annotation
-    domain_info = dict(sorted(domain_info.items(), key = lambda item: int(item[1][2].split("-")[0])))
+    final_mapped_domains = sorted(mapped_domains, key = lambda dom: int(dom.map_range[0]))
     
-    for k in domain_info.keys():
-        accession, eval, res_rng, dom_prop, arch, x_grp, t_grp, f_grp, f_id = domain_info[k]
-        output_lines.append(("{}\t"*9).format(accession, eval, res_rng, dom_prop, arch, x_grp, t_grp, f_grp, f_id)+"\n")
+    for dom in final_mapped_domains:
+        if "CP" in dom.topology:
+            CP_domain_cnt += 1
+        if "NC" in dom.topology:
+            NC_domain_cnt += 1
+        if "IS" in dom.topology:
+            IS_domain_cnt += 1
 
+        output_lines.append(("{}\t"*9).format(accession, f"{dom.e_val:3.2e}", dom.res_str, " ".join([top for top in dom.topology]), dom.arch, dom.x_group, dom.t_group, dom.f_group, dom.f_id)+"\n")
 
     dommap_io.progress_bar(p_idx + 1, num_proteins, prefix = "Mapping:", suffix = "Complete", length = 50)
 
