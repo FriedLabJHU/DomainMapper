@@ -281,7 +281,7 @@ class DomainMap(list):
                         self._overlap_matrix[b+a+1][a] = 1
                 
                 # Small domains (less than `overlap`) must be treated differently since their overlap could be a larger fraction of their length
-                if dom_A.map_intersection(dom_B)/float(dom_A.map_len) > 0.6 or dom_A.map_intersection(dom_B)/float(dom_B.map_len) > 0.6:
+                if dom_A.map_intersection(dom_B)/float(dom_A.map_len) > 0.7 or dom_A.map_intersection(dom_B)/float(dom_B.map_len) > 0.7:
                     self._overlap_matrix[a][b+a+1] = 1
                     self._overlap_matrix[b+a+1][a] = 1
 
