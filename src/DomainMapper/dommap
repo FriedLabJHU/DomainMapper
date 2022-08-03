@@ -182,6 +182,7 @@ for p_idx, protein in enumerate(hmmscan):
                                         and domain_A and domain_B and domain_A.f_group == domain_B.f_group:
                             
                                     domain_B.update_topology(f"CP")
+                                
                                 domain_B.merge(domain_A)
 
                                 # Remove domain_A
@@ -211,7 +212,7 @@ for p_idx, protein in enumerate(hmmscan):
 
             mapped_domains.append(pot_dom_map)
     
-    # Label the intervening domains (domains that lie within non-contiguous domains)
+    # Label the insertional domains (domains that lie within non-contiguous domains)
     if len(mapped_domains) > 1: # only proteins with multiple domains can contain insertional domains
 
         for a,domain_A in enumerate(mapped_domains):

@@ -176,17 +176,17 @@ for p_idx, protein in enumerate(hmmscan):
                                     and domain_A.hmm_intersection(domain_B) <= domain_A.overlap \
                                         and domain_A.hmm_intersection(domain_B)/float(domain_A.hmm_len) < 0.7 and domain_A.hmm_intersection(domain_B)/float(domain_B.hmm_len) < 0.7:                                
                                 
-                                domain_B.merge(domain_A)
-
-                                # Remove domain_A
-                                multi_hsps_domains[a] = None
-
                                 # Check to see if this is CP
                                 if ((domain_A.map_range[0] < domain_B.map_range[0] and domain_A.hmm_range[0] > domain_B.hmm_range[0]) or (domain_A.map_range[0] > domain_B.map_range[0] and domain_A.hmm_range[0] < domain_B.hmm_range[0])) \
                                         and domain_A and domain_B and domain_A.f_group == domain_B.f_group:
                             
                                     domain_B.update_topology(f"CP")
-                            
+                                
+                                domain_B.merge(domain_A)
+
+                                # Remove domain_A
+                                multi_hsps_domains[a] = None
+
                             else:
                                 # Otherwise, retain them, as they could be repetative domains
                                 pass
@@ -211,7 +211,7 @@ for p_idx, protein in enumerate(hmmscan):
 
             mapped_domains.append(pot_dom_map)
     
-    # Label the intervening domains (domains that lie within non-contiguous domains)
+    # Label the insertional domains (domains that lie within non-contiguous domains)
     if len(mapped_domains) > 1: # only proteins with multiple domains can contain insertional domains
 
         for a,domain_A in enumerate(mapped_domains):
