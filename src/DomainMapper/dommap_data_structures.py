@@ -272,8 +272,6 @@ class DomainMap(list):
                         if dom_A.map_intersection(dom_B, end = mid_rng_idx_B) >= dom_A.overlap or dom_A.map_intersection(dom_B, start = mid_rng_idx_B) >= dom_A.overlap:
                             self._overlap_matrix[a][b+a+1] = 1
                             self._overlap_matrix[b+a+1][a] = 1
-                        else:
-                            continue
 
                     # More than twice the `overlap`` and it will be marked overlapping
                     else:
