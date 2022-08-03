@@ -231,15 +231,15 @@ class DomainMap(list):
         try:
             return self._overlap_matrix
         except AttributeError:
-            return self.__update_overlap_matrix()
+            return self.update_overlap_matrix()
     
     def __init_overlap_matrix(self):
         """
         Initializes new overlap matrix for DomainMap list
         """
 
-        self._overlap_matrix = zeros(shape=(len(self), len(self)))
-        self._deletion_matrix = zeros(shape=len(self))
+        self._overlap_matrix = zeros(shape=(len(self), len(self)), dtype=int)
+        self._deletion_matrix = zeros(shape=len(self), dtype=int)
 
     def __map_range_overlapper(self):
         """
@@ -261,18 +261,19 @@ class DomainMap(list):
 
         for a, dom_A in enumerate(self[:-1]):
             for b, dom_B in enumerate(self[a+1:]):
-                
                 # Domains that overlap more than the tolerated `overlap` could be allowed as long as the overlap is less than `overlap`
                 # on both the N- and C-terminal 
                 if dom_A.map_intersection(dom_B) > dom_A.overlap:
                     
                     # Check for situtations were a domain might overlap by greater than or equal to `overlap` number of residues at domain flanks
-                    if dom_A.map_intersection(dom_B) <= 2*dom_A.overlap and (len(dom_A.map_range) >= 2*dom_A.overlap or len(dom_B.map_range) >= 2*dom_B.overlap):
+                    if dom_A.map_intersection(dom_B) <= 2*dom_A.overlap and (dom_A.map_len >= 2*dom_A.overlap or dom_B.map_len >= 2*dom_B.overlap):
                         mid_rng_idx_B = len(dom_A.map_range)//2
                         
                         if dom_A.map_intersection(dom_B, end = mid_rng_idx_B) >= dom_A.overlap or dom_A.map_intersection(dom_B, start = mid_rng_idx_B) >= dom_A.overlap:
                             self._overlap_matrix[a][b+a+1] = 1
                             self._overlap_matrix[b+a+1][a] = 1
+                        else:
+                            continue
 
                     # More than twice the `overlap`` and it will be marked overlapping
                     else:
@@ -280,11 +281,11 @@ class DomainMap(list):
                         self._overlap_matrix[b+a+1][a] = 1
                 
                 # Small domains (less than `overlap`) must be treated differently since their overlap could be a larger fraction of their length
-                if dom_A.map_intersection(dom_B)/float(dom_A.map_len) > 0.7 or dom_A.map_intersection(dom_B)/float(dom_B.map_len) > 0.7:
+                if dom_A.map_intersection(dom_B)/float(dom_A.map_len) > 0.6 or dom_A.map_intersection(dom_B)/float(dom_B.map_len) > 0.6:
                     self._overlap_matrix[a][b+a+1] = 1
                     self._overlap_matrix[b+a+1][a] = 1
 
-    def __update_overlap_matrix(self):
+    def update_overlap_matrix(self):
         """
         Return initialized overlap matrix
         """
@@ -323,7 +324,7 @@ class DomainMap(list):
             tmp_idx = [i]
             tmp_eval = [self[i].e_val]
             for j, overlap in enumerate(overlap_map):
-                if overlap and self[j] and j != i:
+                if overlap and not self._deletion_matrix[j] and j != i:
                     tmp_idx.append(j)
                     tmp_eval.append(self[j].e_val)
 
@@ -348,7 +349,7 @@ class DomainMap(list):
                     self[i] = None
 
         except AttributeError:
-            self.overlap_matrix()
+            self.update_overlap_matrix()
             for i, overlap_row in enumerate(self._overlap_matrix):
                 _recursive_elimination(overlap_row, i)
 

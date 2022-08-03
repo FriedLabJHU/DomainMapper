@@ -184,7 +184,7 @@ for p_idx, protein in enumerate(hmmscan):
                 # preparing to remove overlapping domains that are non-contiguous
                 if len(overlapping_potential_noncontig_domains) > 1:
                     
-                    overlapping_potential_noncontig_domains.overlap_matrix()
+                    overlapping_potential_noncontig_domains.update_overlap_matrix()
                     overlapping_potential_noncontig_domains.eliminate_overlapping_domains()
                     
                     nonoverlapping_potential_noncontig_domains = DomainMap()
@@ -211,8 +211,13 @@ for p_idx, protein in enumerate(hmmscan):
                 if pot_nc_dom and pot_nc_dom.e_val < args.eval_cutoff:
                     potential_domain_mappings.append(pot_nc_dom)
 
-    potential_domain_mappings.overlap_matrix()
+    potential_domain_mappings.update_overlap_matrix()
     potential_domain_mappings.eliminate_overlapping_domains()
+
+    # print(potential_domain_mappings._overlap_matrix.tolist())
+    # for i,dom in enumerate(potential_domain_mappings):
+    #     if dom:
+    #         print(i, potential_domain_mappings._overlap_matrix[i].tolist())
 
     ## Change too io
 
