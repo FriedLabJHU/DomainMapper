@@ -34,7 +34,7 @@ class Domain:
 
         self.hmm_len = self.hmm_range[1] - self.hmm_range[0] + 1
 
-        self.e_val = hsp.evalue_cond
+        self.e_val = (1e-99, hsp.evalue_cond)[hsp.evalue_cond > 0]
 
         self.topology = set()
 
