@@ -13,7 +13,7 @@ argparser.add_argument("-f", type=str, default="NULL", help="Input path to file 
 
 argparser.add_argument("-o", type=str, default="NULL", help="Output path for mapped domains")
 
-argparser.add_argument("--ecod_domains", default="NULL", type=str, help="Path to ECOD \'Latest Domains\' text file  (default = file is automatically downloaded [165 MB Free Space Required (deleted after parsing)] [2 MB File Saved])")
+argparser.add_argument("--dom_def", default="NULL", type=str, help="Path to ECOD \'Latest Domains\' text file  (default = file is automatically downloaded [165 MB Free Space Required (deleted after parsing)] [2 MB File Saved])")
 
 argparser.add_argument("--intra_gap", "--intra_domain_gap_tolerance", type=int, default=30, help="Optional gap size between HMM sequence and query sequence for non-contiguous alignment within a domain (default = 30)")
 
@@ -32,7 +32,7 @@ if len(sys.argv) < 2:
     dommap_io.error_msg("No Arguments Passed. View help page with \'dommap -h\'")
 
 # Checking which domain definitions to use
-if args.ecod_domains == "NULL":
+if args.dom_def == "NULL":
 
     #Dommap will use built in domain definitions
     if args.update and len(sys.argv) < 3:
