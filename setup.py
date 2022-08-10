@@ -1,7 +1,6 @@
 import os
 import sys
 import shutil
-from xml import dom
 from setuptools import setup, find_packages
 
 if os.path.exists('build') == True:
