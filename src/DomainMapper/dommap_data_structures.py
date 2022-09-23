@@ -24,7 +24,7 @@ class Domain:
     Data structure for individual domains annotated (mapped) from a HMMER3 output
     """
 
-    def __init__(self, hsp: HSP, intra_gap: int, inter_gap: int, overlap: int):
+    def __init__(self, hsp: HSP, intra_gap: int, inter_gap: int, overlap: int, frac_overlap: float):
 
         self.map_range = self.__map_range_finder(hsp, intra_gap)
 
@@ -55,6 +55,8 @@ class Domain:
         self.inter_gap = inter_gap
 
         self.overlap = overlap
+
+        self.fol = frac_overlap
 
     def map_intersection(self, dom: Domain, start = 0, end = None):
         """
@@ -279,7 +281,7 @@ class DomainMap(list):
                         self._overlap_matrix[b+a+1][a] = 1
                 
                 # Small domains (less than `overlap`) must be treated differently since their overlap could be a larger fraction of their length
-                if dom_A.map_intersection(dom_B)/float(dom_A.map_len) > 0.7 or dom_A.map_intersection(dom_B)/float(dom_B.map_len) > 0.7:
+                if dom_A.map_intersection(dom_B)/float(dom_A.map_len) > dom_A.fol or dom_A.map_intersection(dom_B)/float(dom_B.map_len) > dom_A.fol:
                     self._overlap_matrix[a][b+a+1] = 1
                     self._overlap_matrix[b+a+1][a] = 1
 

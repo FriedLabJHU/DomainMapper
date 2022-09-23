@@ -15,13 +15,15 @@ argparser.add_argument("-o", type=str, default="NULL", help="Output path for map
 
 argparser.add_argument("--dom_def", default="NULL", type=str, help="Path to ECOD \'Latest Domains\' text file  (default = file is automatically downloaded [165 MB Free Space Required (deleted after parsing)] [2 MB File Saved])")
 
-argparser.add_argument("--intra_gap", "--intra_domain_gap_tolerance", type=int, default=30, help="Optional gap size between HMM sequence and query sequence for non-contiguous alignment within a domain (default = 30)")
+argparser.add_argument("--intra_gap", "--intra_domain_gap_tolerance", type=int, default=30, help="Optional minimum gap size within a high-scoring pair for those residues to be carved out, generating a non-contiguous hit (default = 30)")
 
-argparser.add_argument("--inter_gap", "--inter_domain_gap_tolerance", type=int, default=30, help="Optional gap size between two domains sequences for non-contiguous merging (default = 30)")
+argparser.add_argument("--inter_gap", "--inter_domain_gap_tolerance", type=int, default=30, help="Optional minimum gap size between two high-scoring pairs for the residues inbetween to be left out, generating a non-contiguous hit (default = 30)")
 
-argparser.add_argument("--overlap", "--domain_overlap_tolerance", type=int, default=40, help="Optional overlap between HMM domain sequence and fasta aligment in consecutive or split domains  (default = 40)")
+argparser.add_argument("--overlap", "--domain_overlap_tolerance", type=int, default=40, help="Optional overlap between high-scoring pairs to mandate an elimination  (default = 40)")
 
-argparser.add_argument("--eval_cutoff", type=float, default=1e-5, help="Optional upper bound tolerance of the E-value  (default = 1e-5)")
+argparser.add_argument("--frac_overlap", "--fractional_domain_overlap_tolerance", type=float, default=0.7, help="Optional fractional overlap between high-scoring pairs to mandate an elimination (0.0 - 1.0) (default = 0.7)")
+
+argparser.add_argument("--eval_cutoff", type=float, default=1e-5, help="Optional upper bound tolerance of the E-value (default = 1e-5)")
 
 argparser.add_argument("--update", help="Update ECOD \'Latest Domains\'", default=False, action="store_true")
 
@@ -69,6 +71,9 @@ if args.inter_gap < 0:
 if args.overlap < 0:
     dommap_io.error_msg("Non-positive option detected for overlap tolerance. Please ensure all numerical arguments are positive numbers. View help page with \'dommap -h\'")
 
+if args.frac_overlap < 0:
+    dommap_io.error_msg("Non-positive option detected for fractional overlap tolerance. Please ensure all numerical arguments are positive numbers. View help page with \'dommap -h\'")
+
 if args.eval_cutoff < 0:
     dommap_io.error_msg("Non-positive option detected for E-value cuttoff. Please ensure all numerical arguments are positive numbers. View help page with \'dommap -h\'")
 
@@ -106,7 +111,7 @@ if not num_proteins:
 dommap_io.progress_bar(0, num_proteins, prefix = "Mapping:", suffix = "Complete", length = 50)
 
 # This is here to make the creation of Domain objects easier
-params = [args.intra_gap, args.inter_gap, args.overlap]
+params = [args.intra_gap, args.inter_gap, args.overlap, args.frac_overlap]
 
 # Final reading of the input hmm file
 hmmscan = parse(args.f,"hmmer3-text")
@@ -172,9 +177,9 @@ for p_idx, protein in enumerate(hmmscan):
                             # Merge domains if their query (map) ranges do not overlap
                             # And if their hmm ranges do not overlap (70% for small domains)
                             if domain_A.map_intersection(domain_B) <= domain_A.overlap \
-                                and domain_A.map_intersection(domain_B)/float(domain_A.map_len) < 0.7 and domain_A.map_intersection(domain_B)/float(domain_B.map_len) < 0.7 \
+                                and domain_A.map_intersection(domain_B)/float(domain_A.map_len) < args.frac_overlap and domain_A.map_intersection(domain_B)/float(domain_B.map_len) < args.frac_overlap \
                                     and domain_A.hmm_intersection(domain_B) <= domain_A.overlap \
-                                        and domain_A.hmm_intersection(domain_B)/float(domain_A.hmm_len) < 0.7 and domain_A.hmm_intersection(domain_B)/float(domain_B.hmm_len) < 0.7:                                
+                                        and domain_A.hmm_intersection(domain_B)/float(domain_A.hmm_len) < args.frac_overlap and domain_A.hmm_intersection(domain_B)/float(domain_B.hmm_len) < args.frac_overlap:                                
                                 
                                 # Check to see if this is CP
                                 if ((domain_A.map_range[0] < domain_B.map_range[0] and domain_A.hmm_range[0] > domain_B.hmm_range[0]) or (domain_A.map_range[0] > domain_B.map_range[0] and domain_A.hmm_range[0] < domain_B.hmm_range[0])) \

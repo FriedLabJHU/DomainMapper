@@ -2,8 +2,8 @@ import sys
 
 def file_header(time, in_file, out_file, intra_gap_tol, inter_gap_tol, overlap_tol, eval_tol, Tot_prot_cnt, Tot_cnt, NC_cnt, CP_cnt, IS_cnt):
     fileHeader = """#===========================================================================================
-#  DOMAIN MAPPER v3.0.1
-#  Johns Hopkins Univeristy - August 3rd, 2022
+#  DOMAIN MAPPER v3.0.2
+#  Johns Hopkins Univeristy - September 22nd, 2022
 #  Edgar Manriquez-Sandoval, M.S. - Dept. of Biophysics
 #  emanriq1@jhu.edu
 #  & 
@@ -81,4 +81,26 @@ descriptionText = \
 DomainMapper is a HMMER3 output parser designed to annotate protein domains using the ECOD database.\n
 \n
 `https://github.com/FriedLabJHU/DomainMapper`
+
+The first 31 lines consist of a header containing input and output file names, and parameter values. This is followed by summary statistics for the domains identified in the FASTA file submitted.  
+
+Specifically:
+
+* Total Domains - Self explanatory
+* NC - Number of non-contiguous domains
+* IS - Number of insertional domains
+* CP - Number of circularly permutated domains
+
+The second part of the output contains the list of identified domains. Each of which is assigned values in 9 columns (for ECOD searches).
+* Column 1 - Protein indentifier from FASTA
+* Column 2 - Conditional E-value
+* Column 3 - Domain Range
+* Column 4 - Domain Property (NC, IS, CP)
+* Column 5 - ECOD Architecture (Will be NA if ECOD HMMs are not used)
+* Column 6 - ECOD X-Group (Will be NA if ECOD HMMs are not used)
+* Column 7 - ECOD T-Group (Will be NA if ECOD HMMs is not used)
+* Column 8 - ECOD F-Group
+* Column 9 - ECOD F-ID (Will be NA if ECOD HMMs is not used)
+
+Domains with complex topologie (i.e. nesting, weaving, etc.) can be identified by the "NC IS" property flags in column 4.
 """

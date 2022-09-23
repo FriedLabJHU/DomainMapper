@@ -43,17 +43,18 @@ arguments:
   -h, --help            show this help message and exit
   -f F                  Input path to file from 'hmmscan'
   -o O                  Output path for mapped domains
-  --ecod_domains ECOD_DOMAINS
-                        Path to ECOD 'Latest Domains' text file (default = file is automatically downloaded [165 MB
-                        Free Space Required (deleted after parsing)] [2 MB File Saved])
+  --dom_def DOM_DEF     Path to ECOD 'Latest Domains' text file (default = file is automatically downloaded [165 MB Free Space Required (deleted
+                        after parsing)] [2 MB File Saved])
   --intra_gap INTRA_GAP, --intra_domain_gap_tolerance INTRA_GAP
-                        Optional gap size between HMM sequence and query sequence for non-contiguous alignment within
-                        a domain (default = 30)
+                        Optional minimum gap size within a high-scoring pair for those residues to be carved out, generating a non-contiguous hit
+                        (default = 30)
   --inter_gap INTER_GAP, --inter_domain_gap_tolerance INTER_GAP
-                        Optional gap size between two domains sequences for non-contiguous merging (default = 30)
+                        Optional minimum gap size between two high-scoring pairs for the residues inbetween to be left out, generating a non-
+                        contiguous hit (default = 30)
   --overlap OVERLAP, --domain_overlap_tolerance OVERLAP
-                        Optional overlap between HMM domain sequence and fasta aligment in consecutive or split
-                        domains (default = 40)
+                        Optional overlap between high-scoring pairs to mandate an elimination (default = 40)
+  --frac_overlap FRAC_OVERLAP, --fractional_domain_overlap_tolerance FRAC_OVERLAP
+                        Optional fractional overlap between high-scoring pairs to mandate an elimination (0.0 - 1.0) (default = 0.7)
   --eval_cutoff EVAL_CUTOFF
                         Optional upper bound tolerance of the E-value (default = 1e-5)
   --update              Update ECOD 'Latest Domains'
@@ -98,6 +99,30 @@ Visit [http://hmmer.org/documentation.html](http://hmmer.org/documentation.html)
 
 To read the various additional options available, read the help docstring  
 ```dommap -h```
+
+## Reading DomainMapper Output
+
+The first 31 lines consist of a header containing input and output file names, and parameter values. This is followed by summary statistics for the domains identified in the FASTA file submitted.  
+
+Specifically:
+
+* Total Domains - Self explanatory
+* NC - Number of non-contiguous domains
+* IS - Number of insertional domains
+* CP - Number of circularly permutated domains
+
+The second part of the output contains the list of identified domains. Each of which is assigned values in 9 columns (for ECOD searches).
+* Column 1 - Protein indentifier from FASTA
+* Column 2 - Conditional E-value
+* Column 3 - Domain Range
+* Column 4 - Domain Property (NC, IS, CP)
+* Column 5 - ECOD Architecture (Will be NA if ECOD HMMs are not used)
+* Column 6 - ECOD X-Group (Will be NA if ECOD HMMs are not used)
+* Column 7 - ECOD T-Group (Will be NA if ECOD HMMs is not used)
+* Column 8 - ECOD F-Group
+* Column 9 - ECOD F-ID (Will be NA if ECOD HMMs is not used)
+
+Domains with complex topologie (i.e. nesting, weaving, etc.) can be identified by the "NC IS" property flags in column 4.
 
 ## Citation
 
