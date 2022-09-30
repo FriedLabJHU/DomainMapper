@@ -37,7 +37,7 @@ pip install ./DomainMapper
 ## Documentation
 
 ```
-usage: dommap [-h] [-f F] [-o O] [--ecod_domains ECOD_DOMAINS] [--intra_gap INTRA_GAP] [--inter_gap INTER_GAP] [--overlap OVERLAP] [--eval_cutoff EVAL_CUTOFF] [--update]
+usage: dommap [-h] [-f F] [-o O] [--ecod_domains ECOD_DOMAINS] [--intra_gap INTRA_GAP] [--inter_gap INTER_GAP] [--overlap OVERLAP] [--frac_overlap FRAC_OVERLAP] [--eval_cutoff EVAL_CUTOFF] [--update]
 
 arguments:
   -h, --help            show this help message and exit
