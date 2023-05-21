@@ -126,7 +126,7 @@ Domains with complex topologie (i.e. nesting, weaving, etc.) can be identified b
 
 ## Citation
 
-Pending 
+Manriquez-Sandoval, E, Fried, SD. DomainMapper: Accurate domain structure annotation including those with non-contiguous topologies. Protein Science. 2022; 31( 11):e4465. https://doi.org/10.1002/pro.4465
 
 ## Funding
 
